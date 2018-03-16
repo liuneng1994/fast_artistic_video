@@ -21,7 +21,8 @@ imsize = 512 if use_cuda else 128  # use small size if no gpu
 
 loader = transforms.Compose([
     transforms.Resize((imsize, imsize)),  # scale imported image
-    transforms.ToTensor()])  # transform it into a torch tensor
+    transforms.ToTensor()
+])  # transform it into a torch tensor
 
 
 def image_loader(image_name):
@@ -61,7 +62,6 @@ imshow(content_img.data, title='Content Image')
 
 
 class ContentLoss(nn.Module):
-
     def __init__(self, target, weight):
         super(ContentLoss, self).__init__()
         # we 'detach' the target content from the tree used
@@ -83,7 +83,6 @@ class ContentLoss(nn.Module):
 
 
 class GramMatrix(nn.Module):
-
     def forward(self, input):
         a, b, c, d = input.size()  # a=batch size(=1)
         # b=number of feature maps
@@ -99,7 +98,6 @@ class GramMatrix(nn.Module):
 
 
 class StyleLoss(nn.Module):
-
     def __init__(self, target, weight):
         super(StyleLoss, self).__init__()
         self.target = target.detach() * weight
@@ -130,8 +128,11 @@ content_layers_default = ['conv_4']
 style_layers_default = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']
 
 
-def get_style_model_and_losses(cnn, style_img, content_img,
-                               style_weight=1000, content_weight=1,
+def get_style_model_and_losses(cnn,
+                               style_img,
+                               content_img,
+                               style_weight=1000,
+                               content_weight=1,
                                content_layers=content_layers_default,
                                style_layers=style_layers_default):
     cnn = copy.deepcopy(cnn)
@@ -142,7 +143,8 @@ def get_style_model_and_losses(cnn, style_img, content_img,
     style_losses = []
 
     model = nn.Sequential()  # the new Sequential module network
-    gram = GramMatrix()  # we need a gram module in order to compute style targets
+    gram = GramMatrix(
+    )  # we need a gram module in order to compute style targets
 
     # move these modules to the GPU if possible:
     if use_cuda:
@@ -205,12 +207,17 @@ def get_input_param_optimizer(input_img):
     return input_param, optimizer
 
 
-def run_style_transfer(cnn, content_img, style_img, input_img, num_steps=300,
-                       style_weight=1000, content_weight=1):
+def run_style_transfer(cnn,
+                       content_img,
+                       style_img,
+                       input_img,
+                       num_steps=300,
+                       style_weight=1000,
+                       content_weight=1):
     """Run the style transfer."""
     print('Building the style transfer model..')
-    model, style_losses, content_losses = get_style_model_and_losses(cnn,
-                                                                     style_img, content_img, style_weight, content_weight)
+    model, style_losses, content_losses = get_style_model_and_losses(
+        cnn, style_img, content_img, style_weight, content_weight)
     input_param, optimizer = get_input_param_optimizer(input_img)
 
     print('Optimizing..')
@@ -246,6 +253,7 @@ def run_style_transfer(cnn, content_img, style_img, input_img, num_steps=300,
     input_param.data.clamp_(0, 1)
 
     return input_param.data
+
 
 input_img = content_img.clone()
 # if you want to use a white noise instead uncomment the below line:
