@@ -15,3 +15,4 @@ class GramMatrix(nn.Module):
         # we 'normalize' the values of the gram matrix
         # by dividing by the number of element in each feature maps.
         return G.div(a * b * c * d)
+        
