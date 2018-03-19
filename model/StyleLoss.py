@@ -20,4 +20,3 @@ class StyleLoss(nn.Module):
     def backward(self, retain_graph=True):
         self.loss.backward(retain_graph=retain_graph)
         return self.loss
-        
