@@ -7,14 +7,15 @@ class StyleLoss(nn.Module):
         super(StyleLoss, self).__init__()
         self.target = target.detach() * weight
         self.weight = weight
-        self.gram = GramMatrix()
+        self.gram = GramMatrix.GramMatrix()
         self.criterion = nn.MSELoss()
 
     def forward(self, input):
         self.output = input.clone()
         self.G = self.gram(input)
         self.G.mul_(self.weight)
-        self.loss = self.criterion(self.G, self.target)
+        if self.G.size() == self.target.repeat(input.size(0), 1, 1).size():
+            self.loss = self.criterion(self.G, self.target.repeat(input.size(0), 1, 1))
         return self.output
 
     def backward(self, retain_graph=True):

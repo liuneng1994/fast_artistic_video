@@ -7,9 +7,9 @@ class ResBlock(nn.Module):
     def __init__(self, dim, opt):
         super(ResBlock, self).__init__()
         self.opt = opt
-        self.conv_block = self.build_conv_block(dim, opt['padding_type'], opt['use_instance_norm'])
+        self.conv_block = self.build_conv_block(dim, opt.padding_type, opt.use_instance_norm)
 
-    def build_conv_block(self, dim, padding_type, use_instance_norm = True):
+    def build_conv_block(self, dim, padding_type, use_instance_norm=True):
         conv_block = nn.Sequential()
         p = 0
         if padding_type == 'reflect':

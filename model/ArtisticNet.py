@@ -8,7 +8,7 @@ from model.TVLoss import TVLoss
 class ArtisticNet(nn.Module):
     def forward(self, x):
         output = self.model(x)
-        return torch.mul(output, self.opt['tanh_constant'])
+        return torch.mul(output, self.opt.tanh_constant)
 
     def __init__(self, opt):
         super(ArtisticNet, self).__init__()
@@ -18,13 +18,13 @@ class ArtisticNet(nn.Module):
         p = (filter_size - 1) / 2
         p = int(p)
         conv_model = nn.Sequential()
-        if self.opt['padding_type'] == 'replicate':
+        if self.opt.padding_type == 'replicate':
             conv_model.add_module("pad", nn.ReplicationPad2d(p))
             p = 0
-        elif self.opt['padding_type'] == 'reflect':
+        elif self.opt.padding_type == 'reflect':
             conv_model.add_module('pad', nn.ReflectionPad2d(p))
             p = 0
-        elif self.opt['padding_type'] == 'none':
+        elif self.opt.padding_type == 'none':
             pass
         conv_model.add_module('conv', nn.Conv2d(in_dim, out_dim, filter_size, stride, padding=p))
         return conv_model

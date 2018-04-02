@@ -11,7 +11,7 @@ class PerceptualLoss(nn.Module):
                  style_weight=1000,
                  content_weight=1,
                  tv_loss_weight=1,
-                 content_layer=('conv_4'),
+                 content_layers=('conv_4'),
                  style_layers=('conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5')
                  ):
         super(PerceptualLoss, self).__init__()
@@ -20,7 +20,7 @@ class PerceptualLoss(nn.Module):
         self.content_img = content_img
         self.style_weight = style_weight
         self.content_weight = content_weight
-        self.content_layer = content_layer
+        self.content_layers = content_layers
         self.style_layers = style_layers
         self.model = nn.Sequential()
         self.gram = GramMatrix()
@@ -29,7 +29,7 @@ class PerceptualLoss(nn.Module):
         self.tv_loss = TVLoss(tv_loss_weight)
         if cuda.is_available():
             self.model = self.model.cuda()
-            self.gram = self.model.cuda()
+            self.gram = self.gram.cuda()
         self.init()
 
     def init(self):
@@ -84,13 +84,13 @@ class PerceptualLoss(nn.Module):
         loss = None
         for cl in self.content_losses:
             if loss is None:
-                loss = cl
+                loss = cl.loss
             else:
-                loss += cl
+                loss += cl.loss
         for sl in self.style_losses:
             if loss is None:
-                loss = sl
+                loss = sl.loss
             else:
-                loss += sl
+                loss += sl.loss
         loss += self.tv_loss(input)
         return loss
