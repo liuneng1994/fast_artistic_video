@@ -14,6 +14,7 @@ import torchvision.transforms as transforms
 parser = argparse.ArgumentParser(description="视频风格迁移训练参数配置")
 
 parser.add_argument("--style_image", default='data/shuimo.jpg')
+parser.add_argument("--image_size", default=128)
 
 parser.add_argument("--use_instance_norm", default=1)
 parser.add_argument("--padding_type", default='reflect')
@@ -34,7 +35,7 @@ def main():
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])])
-    style_image = tf(imresize(imread(args.style_image), (256, 256)))
+    style_image = tf(imresize(imread(args.style_image), (args.image_size, args.image_size)))
     style_image = torch.unsqueeze(style_image, 0)
     dataset = DataLoader(mscocoDataset(file='data/ms-coco-256.h5'), batch_size=args.batch_size, shuffle=True,
                          num_workers=4)
@@ -47,7 +48,7 @@ def main():
     step = 0
 
     def auto_save():
-        if step % 10000 == 0:
+        if step % 100 == 0:
             torch.save(net, "model.ckpt")
 
     while step < args.num_iterations:
@@ -64,8 +65,8 @@ def main():
                 net.zero_grad()
                 losses = loss(styled_image)
                 losses.backward()
-                # if step % 100 == 0:
-                print("step %d loss %f" % (step, losses))
+                if step % 10 == 0:
+                    print("step %d loss %f" % (step, losses))
                 return losses
 
             optimizer.step(closure=closure)
