@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 
 
 class ContentLoss(nn.Module):
@@ -10,12 +11,14 @@ class ContentLoss(nn.Module):
         # not a variable. Otherwise the forward method of the criterion
         # will throw an error.
         self.weight = weight
-        self.criterion = nn.MSELoss()
 
     def forward(self, input):
         self.output = input.clone()
         if input.size() == self.target.size():
-            self.loss = self.criterion(input * self.weight, self.target)
+            N = input.size(2) * input.size(3)
+            M = input.size(1)
+            loss = torch.sum(torch.pow(input-self.target,2))
+            self.loss = loss*self.weight/(2*input.size(0))
         return self.output
 
     def backward(self, retain_graph=True):

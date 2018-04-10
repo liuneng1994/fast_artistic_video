@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 
 def main():
-    model = torch.load(args.model_path)
+    model = torch.load(args.model_path).cuda()
     origin_image = imread(args.image_path)
     image = resize(origin_image, (args.image_size, args.image_size))
     origin_size = origin_image.shape
@@ -23,13 +23,13 @@ def main():
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])])
     undo_preprocess = transforms.Compose([
-        transforms.Normalize(mean=[-0.485, -0.456, -0.406],
-                             std=[1 / 0.229, 1 / 0.224, 1 / 0.225]),
+        #transforms.Normalize(mean=[-0.485, -0.456, -0.406],
+         #                    std=[1 / 0.229, 1 / 0.224, 1 / 0.225]),
         transforms.ToPILImage()])
 
     image = preprocess(image)
-    styled = model(torch.unsqueeze(image, 0)).squeeze()
-    styled_image = undo_preprocess(styled.data)
+    styled = model(torch.unsqueeze(image, 0).cuda()).squeeze()
+    styled_image = undo_preprocess(styled.data.cpu())
     styled_image = resize(np.array(styled_image), (origin_size[0], origin_size[1]))
     plt.subplot(2, 1, 1)
     plt.imshow(origin_image)

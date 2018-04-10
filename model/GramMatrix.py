@@ -14,4 +14,4 @@ class GramMatrix(nn.Module):
         G = torch.bmm(features, features.transpose(1,2))  # compute the gram product
         # we 'normalize' the values of the gram matrix
         # by dividing by the number of element in each feature maps.
-        return G.div(a * b * c * d).view(-1, b, b)
+        return G.view(-1, b, b)

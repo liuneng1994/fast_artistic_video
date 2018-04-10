@@ -19,26 +19,26 @@ class ArtisticNet(nn.Module):
         p = int(p)
         conv_model = nn.Sequential()
         if self.opt.padding_type == 'replicate':
-            conv_model.add_module("pad", nn.ReplicationPad2d(p))
+            conv_model.add_module("pad", nn.ReplicationPad2d(p).cuda())
             p = 0
         elif self.opt.padding_type == 'reflect':
-            conv_model.add_module('pad', nn.ReflectionPad2d(p))
+            conv_model.add_module('pad', nn.ReflectionPad2d(p).cuda())
             p = 0
         elif self.opt.padding_type == 'none':
             pass
-        conv_model.add_module('conv', nn.Conv2d(in_dim, out_dim, filter_size, stride, padding=p))
-        return conv_model
+        conv_model.add_module('conv', nn.Conv2d(in_dim, out_dim, filter_size, stride, padding=p).cuda())
+        return conv_model.cuda()
 
     @staticmethod
     def down_sample(in_dim, out_dim):
-        return nn.Conv2d(in_dim, out_dim, 3, 2, 1)
+        return nn.Conv2d(in_dim, out_dim, 3, 2, 1).cuda()
 
     @staticmethod
     def up_sample(in_dim, out_dim):
-        return nn.ConvTranspose2d(in_dim, out_dim, 3, 2, 1, 1)
+        return nn.ConvTranspose2d(in_dim, out_dim, 3, 2, 1, 1).cuda()
 
     def build_model(self):
-        model = nn.Sequential()
+        model = nn.Sequential().cuda()
         model.add_module('conv_1', self.conv(9, 1, 3, 32))
         model.add_module('down1', self.down_sample(32, 64))
         model.add_module('down2', self.down_sample(64, 128))
@@ -50,11 +50,8 @@ class ArtisticNet(nn.Module):
         model.add_module('up1', self.up_sample(128, 64))
         model.add_module('up2', self.up_sample(64, 32))
         model.add_module('conv_2', self.conv(9, 1, 32, 3))
-        model.add_module('tanh', nn.Tanh())
-        if cuda.is_available():
-            self.model = model.cuda()
-        else:
-            self.model = model
+        model.add_module('tanh', nn.Tanh().cuda())
+        self.model = model
 
 
 if __name__ == '__main__':

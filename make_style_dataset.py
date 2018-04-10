@@ -11,7 +11,7 @@ Create an HDF5 file of images for training a feedforward style transfer model.
 """
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--train_dir', default='data/images')
+parser.add_argument('--train_dir', default='/home/saber/文档/coco数据集/train2014/')
 parser.add_argument('--val_dir', default='data/coco/images/val2014')
 parser.add_argument('--output_file', default='data/ms-coco-256.h5')
 parser.add_argument('--height', type=int, default=128)
@@ -74,7 +74,7 @@ def add_data(h5_file, image_dir, prefix, args):
             elif img.ndim == 2:
                 # Grayscale image; it is H x W so broadcasting to C x H x W will just copy
                 # grayscale values into all channels.
-                imgs_dset[idx] = img
+                imgs_dset[idx] = np.expand_dims(img,2)
             output_queue.task_done()
             num_written = num_written + 1
             if num_written % 100 == 0:

@@ -82,15 +82,27 @@ class PerceptualLoss(nn.Module):
     def forward(self, input):
         self.model(input)
         loss = None
+        closs = None
+        sloss = None
+        tloss = None
         for cl in self.content_losses:
             if loss is None:
                 loss = cl.loss
+                closs = cl.loss.clone()
             else:
                 loss += cl.loss
+                closs += cl.loss
         for sl in self.style_losses:
+
             if loss is None:
                 loss = sl.loss
             else:
                 loss += sl.loss
-        loss += self.tv_loss(input)
-        return loss
+                if sloss is None:
+                    sloss = sl.loss
+                else:
+                    sloss += sl.loss
+        tloss = self.tv_loss(input)
+        loss += tloss
+
+        return loss, closs, sloss, tloss
