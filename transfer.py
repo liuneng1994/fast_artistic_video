@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 
 def main():
-    model = torch.load(args.model_path).cuda()
+    model = torch.load(args.model_path)
     origin_image = imread(args.image_path)
     image = resize(origin_image, (args.image_size, args.image_size))
     origin_size = origin_image.shape
@@ -28,7 +28,7 @@ def main():
         transforms.ToPILImage()])
 
     image = preprocess(image)
-    styled = model(torch.unsqueeze(image, 0).cuda()).squeeze()
+    styled = model(torch.unsqueeze(image, 0)).squeeze()
     styled_image = undo_preprocess(styled.data.cpu())
     styled_image = resize(np.array(styled_image), (origin_size[0], origin_size[1]))
     plt.subplot(2, 1, 1)

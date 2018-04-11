@@ -8,6 +8,7 @@ from torch.utils.data.dataloader import DataLoader
 from dataset.mscoco_dataset import mscocoDataset
 from scipy.misc import imread, imresize
 import torchvision.transforms as transforms
+from torchvision.utils import make_grid
 from tensorboardX import SummaryWriter
 
 # TODO 实现数据集读取
@@ -17,12 +18,12 @@ parser = argparse.ArgumentParser(description="视频风格迁移训练参数配�
 parser.add_argument("--style_image", default='data/shuimo.jpg')
 parser.add_argument("--image_size", default=128)
 
-parser.add_argument("--use_instance_norm", default=1)
+parser.add_argument("--use_instance_norm", default=0)
 parser.add_argument("--padding_type", default='reflect')
 parser.add_argument("--tanh_constant", default=150)
 parser.add_argument("--tv_strength", default=1e-6)
 parser.add_argument("--content_weights", default=1.0)
-parser.add_argument("--style_weights", default=5.0)
+parser.add_argument("--style_weights", default=1e3)
 
 # Optimization
 parser.add_argument("--num_iterations", default=40000)
@@ -53,18 +54,16 @@ def main():
     writer = SummaryWriter('./logs')
 
     def auto_save():
-        if step % 5000 == 0:
+        if step % 200 == 0:
             torch.save(net, "model.ckpt")
 
     def log_gradient(parameters, step):
         for name, parameter in parameters:
             writer.add_histogram(name, parameter.grad.data.cpu().numpy(), step)
-            writer.add_scalars(name, {"std": torch.std(parameter),
-                                      "mean": torch.mean(parameter)
-                                      })
+
     for param in net.parameters():
         if len(param.data.size()) < 2:
-            nn.init.constant(param.data,0)
+            nn.init.constant(param.data, 0)
         else:
             nn.init.xavier_normal(param.data)
     while step < args.num_iterations:
@@ -73,19 +72,25 @@ def main():
             if step >= args.num_iterations:
                 break
             auto_save()
-            x = autograd.Variable(data).cuda()
+            x = autograd.Variable(data).cuda() if cuda.is_available() else autograd.Variable(data)
             styled_image = net(x)
-            loss = PerceptualLoss(cnn, autograd.Variable(style_image).cuda(), x).cuda()
+            # styled_image = autograd.Variable(style_image).cuda() if cuda.is_available() else autograd.Variable(
+            #     style_image)
+            target = autograd.Variable(style_image)
+            if cuda.is_available():
+                target = target.cuda()
+            loss = PerceptualLoss(cnn, target, x)
 
             def closure():
                 net.zero_grad()
                 losses, cl, sl, tl = loss(styled_image)
                 losses.backward()
                 # nn.utils.clip_grad_norm(net.parameters(), 1000)
-                if step % 100 == 0:
+                if step % 10 == 0:
                     print("step %d loss %f cl %f sl %f tl %f" % (step, losses, cl, sl, tl))
                     writer.add_scalars("LOSS", {"content_loss": cl, "style_loss": sl, "tv_loss": tl, "loss": losses},
                                        global_step=step)
+                    writer.add_image("style_image", make_grid(styled_image.data),step)
                     log_gradient(net.named_parameters(), step)
                 return losses
 

@@ -17,8 +17,8 @@ class ContentLoss(nn.Module):
         if input.size() == self.target.size():
             N = input.size(2) * input.size(3)
             M = input.size(1)
-            loss = torch.sum(torch.pow(input-self.target,2))
-            self.loss = loss*self.weight/(2*input.size(0))
+            loss = torch.sum(torch.pow(input - self.target, 2))
+            self.loss = loss * self.weight / (2 * input.size(0) * input.size(1) * input.size(2) * input.size(3))
         return self.output
 
     def backward(self, retain_graph=True):
