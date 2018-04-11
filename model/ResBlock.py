@@ -38,4 +38,4 @@ class ResBlock(nn.Module):
     def forward(self, x):
         output = self.conv_block(x)
         assert output.shape == x.shape
-        return F.relu(torch.add(output, x), True)
+        return torch.add(output, x)

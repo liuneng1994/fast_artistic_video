@@ -59,7 +59,7 @@ def main():
 
     def log_gradient(parameters, step):
         for name, parameter in parameters:
-            writer.add_histogram(name, parameter.grad.data.cpu().numpy(), step)
+            writer.add_histogram(name, parameter.grad.data.cpu().numpy(), step, bins='auto')
 
     for param in net.parameters():
         if len(param.data.size()) < 2:
@@ -74,8 +74,6 @@ def main():
             auto_save()
             x = autograd.Variable(data).cuda() if cuda.is_available() else autograd.Variable(data)
             styled_image = net(x)
-            # styled_image = autograd.Variable(style_image).cuda() if cuda.is_available() else autograd.Variable(
-            #     style_image)
             target = autograd.Variable(style_image)
             if cuda.is_available():
                 target = target.cuda()
@@ -90,7 +88,7 @@ def main():
                     print("step %d loss %f cl %f sl %f tl %f" % (step, losses, cl, sl, tl))
                     writer.add_scalars("LOSS", {"content_loss": cl, "style_loss": sl, "tv_loss": tl, "loss": losses},
                                        global_step=step)
-                    writer.add_image("style_image", make_grid(styled_image.data),step)
+                    writer.add_image("style_image", make_grid(styled_image.data), step)
                     log_gradient(net.named_parameters(), step)
                 return losses
 
