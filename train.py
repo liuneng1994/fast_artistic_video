@@ -53,7 +53,7 @@ def main():
     ])
     style_image = tf(imresize(imread(args.style_image), (args.image_size, args.image_size)))
     style_image = torch.unsqueeze(style_image * 255, 0)
-    dataset = DataLoader(mscocoDataset(file='data/my-128.h5'), batch_size=args.batch_size, shuffle=True,
+    dataset = DataLoader(mscocoDataset(file='data/my-128.h5'), batch_size=args.batch_size, shuffle=False,
                          num_workers=4)
     net = ArtisticNet(args)
     net.build_model()
@@ -97,14 +97,14 @@ def main():
                 net.zero_grad()
                 losses, cl, sl, tl = loss(styled_image)
                 losses.backward()
-                nn.utils.clip_grad_norm(net.parameters(), 10)
+                # nn.utils.clip_grad_norm(net.parameters(), 10)
                 if step % 100 == 0:
                     print("step %d loss %f cl %f sl %f tl %f" % (step, losses, cl, sl, tl))
                     writer.add_scalars("LOSS", {"content_loss": cl, "style_loss": sl, "tv_loss": tl, "loss": losses},
                                        global_step=step)
                     writer.add_image("image_" + str(step) + "_content", make_grid(data), step)
                     writer.add_image("image_" + str(step) + "_style",
-                                     make_grid(torch.clamp(deprocess(styled_image.data), min=0, max=255) / 255, step))
+                                     make_grid(styled_image.data, step))
                     log_gradient(net.named_parameters(), step)
                 return losses
 

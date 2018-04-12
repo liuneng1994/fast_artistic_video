@@ -8,9 +8,9 @@ from model.TVLoss import TVLoss
 
 class PerceptualLoss(nn.Module):
     def __init__(self, cnn, style_img, content_img,
-                 style_weight=100,
-                 content_weight=10,
-                 tv_loss_weight=1e-4,
+                 style_weight=10,
+                 content_weight=1,
+                 tv_loss_weight=1e-5,
                  content_layers=('conv_4'),
                  style_layers=('conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5')
                  ):
