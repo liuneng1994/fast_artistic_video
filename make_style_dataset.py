@@ -74,7 +74,7 @@ def add_data(h5_file, image_dir, prefix, args):
             elif img.ndim == 2:
                 # Grayscale image; it is H x W so broadcasting to C x H x W will just copy
                 # grayscale values into all channels.
-                imgs_dset[idx] = np.expand_dims(img,2)
+                imgs_dset[idx] = np.expand_dims(img, 2)
             output_queue.task_done()
             num_written = num_written + 1
             if num_written % 100 == 0:

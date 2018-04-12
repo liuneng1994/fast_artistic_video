@@ -8,7 +8,8 @@ class mscocoDataset(Dataset):
     def __getitem__(self, index):
         item = self.file['train2014/images'][index]
 
-        return self.transform(item) * 255
+        return self.transform(item)
+            #torch.FloatTensor(np.transpose(item, (2, 0, 1)))
 
     def __len__(self):
         return self.file['train2014/images'].shape[0]
@@ -17,7 +18,7 @@ class mscocoDataset(Dataset):
         self.file = h5py.File(file, mode='r')
         self.transform = transforms.Compose([
             transforms.ToTensor()
-            #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[1, 1, 1])
+            # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[1, 1, 1])
         ])
 
 
