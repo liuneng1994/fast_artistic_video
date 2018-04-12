@@ -11,9 +11,9 @@ Create an HDF5 file of images for training a feedforward style transfer model.
 """
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--train_dir', default='/home/saber/文档/coco数据集/train2014/')
+parser.add_argument('--train_dir', default='data/images')
 parser.add_argument('--val_dir', default='data/coco/images/val2014')
-parser.add_argument('--output_file', default='data/ms-coco-256.h5')
+parser.add_argument('--output_file', default='data/my-128.h5')
 parser.add_argument('--height', type=int, default=128)
 parser.add_argument('--width', type=int, default=128)
 parser.add_argument('--max_images', type=int, default=-1)
