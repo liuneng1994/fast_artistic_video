@@ -13,6 +13,7 @@ from tensorboardX import SummaryWriter
 import shutil
 import os
 import numpy as np
+from preprocess import preprocess,deprocess
 
 # TODO 实现数据集读取
 
@@ -23,7 +24,7 @@ parser.add_argument("--image_size", default=128)
 
 parser.add_argument("--use_instance_norm", default=1)
 parser.add_argument("--padding_type", default='reflect')
-parser.add_argument("--tanh_constant", default=255)
+parser.add_argument("--tanh_constant", default=150)
 parser.add_argument("--tv_strength", default=1e-4)
 parser.add_argument("--content_weights", default=1.0)
 parser.add_argument("--style_weights", default=1e3)
@@ -37,11 +38,6 @@ args = parser.parse_args()
 mean = np.asarray([0.485, 0.456, 0.406])
 
 
-def deprocess(img):
-    return img
-           #+ torch.FloatTensor((mean * 255).reshape(3, 1, 1)).cuda()
-
-
 def main():
     # clear log file
     if os.path.exists("logs"):
@@ -52,7 +48,7 @@ def main():
         #transforms.Normalize(mean, [1, 1, 1])
     ])
     style_image = tf(imresize(imread(args.style_image), (args.image_size, args.image_size)))
-    style_image = torch.unsqueeze(style_image * 255, 0)
+    style_image = torch.unsqueeze(preprocess(style_image), 0)
     dataset = DataLoader(mscocoDataset(file='data/my-128.h5'), batch_size=args.batch_size, shuffle=False,
                          num_workers=4)
     net = ArtisticNet(args)
@@ -104,7 +100,7 @@ def main():
                                        global_step=step)
                     writer.add_image("image_" + str(step) + "_content", make_grid(data), step)
                     writer.add_image("image_" + str(step) + "_style",
-                                     make_grid(styled_image.data, step))
+                                     make_grid(deprocess(styled_image.data), step))
                     log_gradient(net.named_parameters(), step)
                 return losses
 

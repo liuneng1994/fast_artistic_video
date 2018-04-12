@@ -2,13 +2,14 @@ from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 import h5py
 import torch
+from preprocess import preprocess
 
 
 class mscocoDataset(Dataset):
     def __getitem__(self, index):
         item = self.file['train2014/images'][index]
 
-        return self.transform(item)
+        return preprocess(self.transform(item))
             #torch.FloatTensor(np.transpose(item, (2, 0, 1)))
 
     def __len__(self):
@@ -30,5 +31,5 @@ if __name__ == '__main__':
     plt.figure(figsize=(12, 12))
     for i in range(len(dataset)):
         plt.subplot(2, 2, i + 1)
-        plt.imshow(np.transpose(dataset[i].numpy(), (1, 2, 0)))
+        plt.imshow(np.transpose(dataset[i].numpy()/255, (1, 2, 0)))
     plt.show()
